@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using System.Text;
+
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Sontar.Pac;
 
@@ -15,15 +17,22 @@ public class ProgramTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Get_Root_Returns_hello_world()
+    public async Task Get_Root_Returns_PAC_file_content()
     {
+        var expectedContentType = "application/x-ns-proxy-autoconfig";
+        var expectedContent = File.ReadAllText("default.pac", Encoding.UTF8);
+        var expectedContentLength = expectedContent.Length;
+
         var client = _webApplicationFactory.CreateClient();
         var response = await client.GetAsync("/");
 
-        var mediaType = response.Content.Headers.ContentType?.MediaType;
-        mediaType.Should().Be("text/plain");
+        var contentType = response.Content.Headers.ContentType?.MediaType;
+        contentType.Should().Be(expectedContentType);
+
+        var contentLength = response.Content.Headers.ContentLength;
+        contentLength.Should().Be(expectedContentLength);
 
         var content = await response.Content.ReadAsStringAsync();
-        content.Should().Be("Hello World!");
+        content.Should().Be(expectedContent);
     }
 }
