@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+  release:
+    types:
+      - published
+
+env:
+  Configuration: Release
+  # Change this to the custom PAT if required.
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  GITHUB_REPO_OWNER: ${{github.repository_owner}}
+  GITHUB_CONTAINER_REGISTRY: ghcr.io
+
+jobs:
+  main:
+    name: Build, test, publish
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        source-url: https://nuget.pkg.github.com/sontarru/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{env.GITHUB_TOKEN}}
+
+    - name: Restore projects' dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --no-restore
+
+    - name: Run tests
+      run: dotnet test --no-build
+
+    - name: Login to container registry
+      if: github.event_name == 'release'
+      run: docker login -u $GITHUB_REPO_OWNER -p $GITHUB_TOKEN $GITHUB_CONTAINER_REGISTRY
+
+    - name: Build and publish docker image(s)
+      if: github.event_name == 'release'
+      run: >-
+        dotnet publish /t:PublishContainer
+        /p:ContainerRegistry=$GITHUB_CONTAINER_REGISTRY
+        --no-build
