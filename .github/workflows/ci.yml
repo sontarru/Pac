@@ -15,6 +15,10 @@ on:
     types:
       - published
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   Configuration: Release
   # Change this to the custom PAT if required.
