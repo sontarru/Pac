@@ -6,7 +6,7 @@ customization at the solution level.
   <!-- Version -->
   <PropertyGroup>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>dev</VersionSuffix>
+    <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 
   <!-- These come from the template symbols-->
@@ -21,7 +21,6 @@ customization at the solution level.
     <Product>Pac</Product>
     <Description>Pac</Description>
     <Authors>$(Company)</Authors>
-    <Company>$(Company)</Company>
     <Copyright>© $(Company), 2025</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryName>$(GitHubRepoName)</RepositoryName>
